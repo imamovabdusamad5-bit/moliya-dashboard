@@ -5,12 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0f172a">
   <meta name="description" content="Moliyaviy boshqaruv paneli">
-  <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIk1vbGl5YXZpeSBCb3NocWFydXYgUGFuZWxpIiwKICAic2hvcnRfbmFtZSI6ICJNb2xpeWEiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzBmMTcyYSIsCiAgInRoZW1lX2NvbG9yIjogIiMwZjE3MmEiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWwsJTNDc3ZnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zycgdmlld0JveD0nMCAwIDEwMCAxMDAnJTNFJTNDcmVjdCBmaWxsPSclMjMzYjgyZjYnIHdpZHRoPScxMDAnIGhlaWdodD0nMTAwJy8lM0UlM0N0ZXh0IHg9JzUwJyB5PSc2MCcgZm9udC1zaXplPSc1MCcgdGV4dC1hbmNob3I9J21pZGRsZScgZmlsbD0nd2hpdGUnJTNFJTI0JTNDL3RleHQlM0UlM0Mvc3ZnJTNFIiwKICAgICAgInNpemVzIjogIjE5MngxOTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIgogICAgfSwKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWwsJTNDc3ZnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zycgdmlld0JveD0nMCAwIDEwMCAxMDAnJTNFJTNDcmVjdCBmaWxsPSclMjMzYjgyZjYnIHdpZHRoPScxMDAnIGhlaWdodD0nMTAwJy8lM0UlM0N0ZXh0IHg9JzUwJyB5PSc2MCcgZm9udC1zaXplPSc1MCcgdGV4dC1hbmNob3I9J21pZGRsZScgZmlsbD0nd2hpdGUnJTNFJTI0JTNDL3RleHQlM0UlM0Mvc3ZnJTNFIiwKICAgICAgInNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIgogICAgfQogIF0KfQ==">
-  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%233b82f6' width='100' height='100'/%3E%3Ctext x='50' y='60' font-size='50' text-anchor='middle' fill='white'%3E$%3C/text%3E%3C/svg%3E">
   <title>Moliyaviy Boshqaruv</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.5.0/Recharts.js"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/recharts@2.5.0/dist/Recharts.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { margin: 0; font-family: system-ui, -apple-system, sans-serif; }
@@ -31,16 +29,28 @@
     );
 
     function App() {
-      const [subscriptions, setSubscriptions] = useState([]);
+      const loadData = () => {
+        try {
+          const saved = localStorage.getItem('moliya-data');
+          return saved ? JSON.parse(saved) : null;
+        } catch {
+          return null;
+        }
+      };
+
+      const [subscriptions, setSubscriptions] = useState([
+        { id: 1, name: 'Netflix', amount: 15, category: 'Koʻngilochar' }
+      ]);
       const [income, setIncome] = useState(5000);
-      const [expenses, setExpenses] = useState([]);
+      const [expenses, setExpenses] = useState([
+        { id: 2, name: 'Oziq-ovqat', amount: 500, category: 'Oziq-ovqat' }
+      ]);
       const [newSub, setNewSub] = useState({ name: '', amount: '', category: 'Koʻngilochar' });
       const [newExp, setNewExp] = useState({ name: '', amount: '', category: 'Oziq-ovqat' });
 
       useEffect(() => {
-        const saved = localStorage.getItem('financeData');
-        if (saved) {
-          const data = JSON.parse(saved);
+        const data = loadData();
+        if (data) {
           setSubscriptions(data.subscriptions || []);
           setIncome(data.income || 5000);
           setExpenses(data.expenses || []);
@@ -48,7 +58,11 @@
       }, []);
 
       useEffect(() => {
-        localStorage.setItem('financeData', JSON.stringify({ subscriptions, income, expenses }));
+        try {
+          localStorage.setItem('moliya-data', JSON.stringify({ subscriptions, income, expenses }));
+        } catch (e) {
+          console.log('Storage not available');
+        }
       }, [subscriptions, income, expenses]);
 
       const addSubscription = () => {
@@ -97,8 +111,7 @@
       return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4 sm:p-6' },
         React.createElement('div', { className: 'max-w-7xl mx-auto' },
           React.createElement('h1', { className: 'text-2xl sm:text-4xl font-bold text-white mb-6 sm:mb-8 flex items-center gap-3' },
-            Icon({ d: 'M3 3v18h18M7 16l4-4 4 4 6-6', className: 'text-blue-400' }),
-            'Moliyaviy Panel'
+            '💰 Moliyaviy Panel'
           ),
 
           React.createElement('div', { className: 'grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8' },
@@ -117,12 +130,13 @@
           ),
 
           React.createElement('div', { className: 'mb-6 bg-slate-800 rounded-xl p-4 sm:p-6 shadow-2xl' },
-            React.createElement('label', { className: 'block text-white mb-2 font-semibold' }, 'Oylik Daromad'),
+            React.createElement('label', { className: 'block text-white mb-2 font-semibold text-lg' }, '💵 Oylik Daromad'),
             React.createElement('input', {
               type: 'number',
               value: income,
               onChange: (e) => setIncome(parseFloat(e.target.value) || 0),
-              className: 'w-full px-4 py-3 bg-slate-700 text-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none'
+              className: 'w-full px-4 py-3 bg-slate-700 text-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-lg',
+              placeholder: '5000'
             })
           ),
 
@@ -132,14 +146,14 @@
               React.createElement('div', { className: 'space-y-3 mb-4' },
                 React.createElement('input', {
                   type: 'text',
-                  placeholder: 'Obuna nomi',
+                  placeholder: 'Obuna nomi (Netflix, Spotify...)',
                   value: newSub.name,
                   onChange: (e) => setNewSub({...newSub, name: e.target.value}),
                   className: 'w-full px-4 py-2 bg-slate-700 text-white rounded-lg outline-none focus:ring-2 focus:ring-purple-500'
                 }),
                 React.createElement('input', {
                   type: 'number',
-                  placeholder: 'Miqdor',
+                  placeholder: 'Miqdor ($)',
                   value: newSub.amount,
                   onChange: (e) => setNewSub({...newSub, amount: e.target.value}),
                   className: 'w-full px-4 py-2 bg-slate-700 text-white rounded-lg outline-none focus:ring-2 focus:ring-purple-500'
@@ -155,7 +169,7 @@
                 ),
                 React.createElement('button', {
                   onClick: addSubscription,
-                  className: 'w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg transition'
+                  className: 'w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg transition font-semibold'
                 }, '+ Obuna Qo\'shish')
               ),
               React.createElement('div', { className: 'space-y-2 max-h-64 overflow-y-auto' },
@@ -169,19 +183,19 @@
                       React.createElement('span', { className: 'text-purple-400 font-bold' }, '$', sub.amount),
                       React.createElement('button', {
                         onClick: () => setSubscriptions(subscriptions.filter(s => s.id !== sub.id)),
-                        className: 'text-red-400 hover:text-red-300'
+                        className: 'text-red-400 hover:text-red-300 text-xl'
                       }, '🗑️')
                     )
                   )
                 )
               ),
               React.createElement('div', { className: 'mt-4 pt-4 border-t border-slate-600' },
-                React.createElement('p', { className: 'text-white font-bold' }, 'Jami: $', totalSubs.toFixed(2))
+                React.createElement('p', { className: 'text-white font-bold text-lg' }, 'Jami: $', totalSubs.toFixed(2))
               )
             ),
 
             React.createElement('div', { className: 'bg-slate-800 rounded-xl p-4 sm:p-6 shadow-2xl' },
-              React.createElement('h2', { className: 'text-xl sm:text-2xl font-bold text-white mb-4' }, '💰 Xarajatlar'),
+              React.createElement('h2', { className: 'text-xl sm:text-2xl font-bold text-white mb-4' }, '💰 Boshqa Xarajatlar'),
               React.createElement('div', { className: 'space-y-3 mb-4' },
                 React.createElement('input', {
                   type: 'text',
@@ -192,7 +206,7 @@
                 }),
                 React.createElement('input', {
                   type: 'number',
-                  placeholder: 'Miqdor',
+                  placeholder: 'Miqdor ($)',
                   value: newExp.amount,
                   onChange: (e) => setNewExp({...newExp, amount: e.target.value}),
                   className: 'w-full px-4 py-2 bg-slate-700 text-white rounded-lg outline-none focus:ring-2 focus:ring-green-500'
@@ -210,7 +224,7 @@
                 ),
                 React.createElement('button', {
                   onClick: addExpense,
-                  className: 'w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition'
+                  className: 'w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg transition font-semibold'
                 }, '+ Xarajat Qo\'shish')
               ),
               React.createElement('div', { className: 'space-y-2 max-h-64 overflow-y-auto' },
@@ -224,21 +238,21 @@
                       React.createElement('span', { className: 'text-green-400 font-bold' }, '$', exp.amount),
                       React.createElement('button', {
                         onClick: () => setExpenses(expenses.filter(e => e.id !== exp.id)),
-                        className: 'text-red-400 hover:text-red-300'
+                        className: 'text-red-400 hover:text-red-300 text-xl'
                       }, '🗑️')
                     )
                   )
                 )
               ),
               React.createElement('div', { className: 'mt-4 pt-4 border-t border-slate-600' },
-                React.createElement('p', { className: 'text-white font-bold' }, 'Jami: $', totalExp.toFixed(2))
+                React.createElement('p', { className: 'text-white font-bold text-lg' }, 'Jami: $', totalExp.toFixed(2))
               )
             )
           ),
 
           React.createElement('div', { className: 'grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6' },
             React.createElement('div', { className: 'bg-slate-800 rounded-xl p-4 sm:p-6 shadow-2xl' },
-              React.createElement('h3', { className: 'text-lg sm:text-xl font-bold text-white mb-4' }, 'Umumiy Holat'),
+              React.createElement('h3', { className: 'text-lg sm:text-xl font-bold text-white mb-4' }, '📊 Umumiy Holat'),
               React.createElement(ResponsiveContainer, { width: '100%', height: 300 },
                 React.createElement(BarChart, { data: summaryData },
                   React.createElement(CartesianGrid, { strokeDasharray: '3 3', stroke: '#475569' }),
@@ -251,7 +265,7 @@
             ),
 
             pieData.length > 0 && React.createElement('div', { className: 'bg-slate-800 rounded-xl p-4 sm:p-6 shadow-2xl' },
-              React.createElement('h3', { className: 'text-lg sm:text-xl font-bold text-white mb-4' }, 'Toifalar'),
+              React.createElement('h3', { className: 'text-lg sm:text-xl font-bold text-white mb-4' }, '🎯 Toifalar'),
               React.createElement(ResponsiveContainer, { width: '100%', height: 300 },
                 React.createElement(PieChart, null,
                   React.createElement(Pie, {
@@ -272,16 +286,18 @@
                 )
               )
             )
+          ),
+
+          React.createElement('div', { className: 'mt-8 text-center text-slate-400 text-sm' },
+            React.createElement('p', null, '💡 Ma\'lumotlaringiz telefoningizda saqlanadi'),
+            React.createElement('p', { className: 'mt-1' }, 'Bosh ekranga qo\'shish uchun brauzer menyusidan "Add to Home Screen" ni tanlang')
           )
         )
       );
     }
 
-    ReactDOM.render(React.createElement(App), document.getElementById('root'));
-
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('data:text/javascript,');
-    }
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(App));
   </script>
 </body>
 </html>
